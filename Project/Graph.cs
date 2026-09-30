@@ -70,7 +70,32 @@ namespace FuelPriceNamespace
             links[to].linkIn++;
         }
 
-        public int[,] BuildAndPrintMatrix()
+        private int GetIndex(string v, int j)
+        {
+            if (fromList[j] == v)
+            {
+                return 1;   
+            }
+            else if (toList[j] == v)
+            {
+                return -1;  
+            }
+            return 0;
+        }
+
+        private void FillMatrix(int[,] matrix, List<string> vertList, int rowCount, int colCount)
+        {
+            for (int i = 0; i < rowCount; i++)
+            {
+                string v = vertList[i];
+                for (int j = 0; j < colCount; j++)
+                {
+                    matrix[i, j] = GetIndex(v, j);
+                }
+            }
+        }
+
+        public int[,] BuildAndReturnMatrix()
         {
             int rowCount = links.Count;
             int colCount = fromList.Count;
@@ -79,26 +104,7 @@ namespace FuelPriceNamespace
 
             List<string> vertList = new List<string>(links.Keys);
 
-            for (int i = 0; i < rowCount; i++)
-            {
-                string v = vertList[i];
-                for (int j = 0; j < colCount; j++)
-                {
-                    if (fromList[j] == v)
-                    {
-                        matrix[i, j] = 1;   
-                    }
-                    else if (toList[j] == v)
-                    {
-                        matrix[i, j] = -1;  
-                    }
-                    else
-                    {
-                        matrix[i, j] = 0;  
-                    }
-                }
-            }
-
+            FillMatrix(matrix, vertList, rowCount, colCount);
             return matrix;
         }
     }
