@@ -19,29 +19,9 @@ namespace FuelPriceNamespace
         {
             string[] tokens = input.Split(' ');
 
-            double price = 0;
-            DateTime date = default;
-            string fuelType = "";
-
-            foreach (string token in tokens)
-            {
-                if (double.TryParse(token, out double parsedPrice))
-                {
-                    price = parsedPrice;
-                    continue;
-                }
-                if (DateTime.TryParseExact(
-                    token,
-                    "yyyy.MM.dd",
-                    null,
-                    DateTimeStyles.None,
-                    out DateTime parsedDate))
-                {
-                    date = parsedDate;
-                    continue;
-                }
-                fuelType = token;
-            }
+            double price = double.Parse(tokens[0]);
+            DateTime date = DateTime.ParseExact(tokens[1], "yyyy.MM.dd", null);
+            string fuelType = tokens[2];
 
             return new FuelPrice(price, date, fuelType);
         }

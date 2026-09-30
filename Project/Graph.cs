@@ -2,59 +2,75 @@ namespace FuelPriceNamespace
 {
     public class Graph
     {
-        public Dictionary<string, Info> links = new Dictionary<string, Info>();
-        public List<string> fromList = new List<string>();
-        public List<string> toList = new List<string>();
+        private readonly Dictionary<string, LinkInfo> links = new Dictionary<string, LinkInfo>();
+        private readonly List<string> fromList = new List<string>();
+        private readonly List<string> toList = new List<string>();
 
-        public void ReadFile(string filename)
+        private void ResetGraph()
         {
             links.Clear();
             fromList.Clear();
             toList.Clear();
+        }
 
-            foreach (string line in File.ReadAllLines(filename))
+        public void ReadFile(string filename)
+        {
+            ResetGraph();
+            string[] lines =  File.ReadAllLines(filename);
+            ParseLines(lines);
+        }
+        
+        public void ParseLines(string[] lines)
+        {
+            foreach(string line in lines)
             {
-                if (line == "") continue;
-
-                for (int i = 0; i < line.Length - 1; i++)
-                {
-                    if (line[i] == '-' && line[i + 1] == '>')
-                    {
-                        string a = "";
-                        string b = "";
-
-                        for (int j = 0; j < i; j++)
-                        {
-                            if (line[j] != ' ') a = a + line[j];
-                        }
-
-                        for (int j = i + 2; j < line.Length; j++)
-                        {
-                            if (line[j] != ' ') b = b + line[j];
-                        }
-
-                        fromList.Add(a);
-                        toList.Add(b);
-
-                        if (!links.ContainsKey(a))
-                        {
-                            links.Add(a, new Info());
-                        }
-                        if (!links.ContainsKey(b))
-                        {
-                            links.Add(b, new Info());
-                        }
-                        links[a].Targets.Add(b);
-                        links[a].Out++;
-                        links[b].In++;
-
-                        break;
-                    }
-                }
+                ProcessLine(line);
             }
         }
 
-        public void BuildAndPrintMatrix()
+        public void ProcessLine(string line)
+        {
+            if (string.IsNullOrWhiteSpace(line) || !line.Contains("->"))
+            {
+                return;
+            }
+            string[] links = GetLinks(line);
+            AddEdge(links[0], links[1]);
+        }
+
+        private string[] GetLinks(string line)
+        {
+            string[] parts = line.Split("->");
+            string from = parts[0].Trim();
+            string to = parts[1].Trim();
+            return new string[] { from, to };
+        }
+
+        private void AddEdge(string from, string to)
+        {
+            fromList.Add(from);
+            toList.Add(to);
+            AddLink(from);
+            AddLink(to);
+            UpdateLinks(from, to);
+        }
+
+        private void AddLink(string name)
+        {
+            if (!links.ContainsKey(name))
+            {
+                links.Add(name, new LinkInfo());
+            }
+        }
+
+        private void UpdateLinks(string from, string to)
+        {
+            links[from].targets.Add(to);
+            links[from].linkOut++;
+            links[to].linkIn++;
+        }
+
+        public int[,] BuildAndPrintMatrix()
         {
             int rowCount = links.Count;
             int colCount = fromList.Count;
@@ -66,7 +82,7 @@ namespace FuelPriceNamespace
             for (int i = 0; i < rowCount; i++)
             {
                 string v = vertList[i];
-                for (int j = 0; j < colCount; i++)
+                for (int j = 0; j < colCount; j++)
                 {
                     if (fromList[j] == v)
                     {
@@ -82,6 +98,8 @@ namespace FuelPriceNamespace
                     }
                 }
             }
+
+            return matrix;
         }
     }
 }
