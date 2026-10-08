@@ -5,6 +5,7 @@ class Program
     private static List<FuelPrice> oils = [];
     private static List<GasStation> stations = [];
     private static Graph graph = new Graph();
+    private static readonly int[] choices = { 0, 1, 2, 3 };
     static void Main()
     {
         RunMenuLoop();
@@ -15,27 +16,45 @@ class Program
         while (true)
         {
             PrintMenu();
-            string choice = Console.ReadLine();
-            if (choice == "0")
+            string? choice = Console.ReadLine();
+            try
             {
-                Console.WriteLine("Выход из программы.");   
-                break; 
+                if (string.IsNullOrWhiteSpace(choice))
+                {
+                    throw new ArgumentException("Ввод не может быть пустым");
+                }
+
+                int parsedChoice = int.Parse(choice);
+                if (parsedChoice == 0)
+                {
+                    Console.WriteLine("Выход из программы");
+                    break;
+                }
+                if (!choices.Contains(parsedChoice))
+                {
+                    throw new ArgumentException("Такого пункта меню не существует");
+                }
+                ExecuteChoice(parsedChoice);
             }
-            ExecuteChoice(choice);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                continue;
+            }
         }
     }
 
-    private static void ExecuteChoice(string choice)
+    private static void ExecuteChoice(int parsedChoice)
     {
-        if (choice == "1")
+        if (parsedChoice == 1)
         {
             AddFuel();
         }
-        else if (choice == "2")
+        else if (parsedChoice == 2)
         {
             AddGasStation();
         }
-        else if (choice == "3")
+        else if (parsedChoice == 3)
         {
             ProcessGraph();
         }
@@ -45,13 +64,25 @@ class Program
         }
     }
 
-        private static void AddFuel()
+    private static void AddFuel()
     {
-        foreach (string line in File.ReadAllLines("input.txt"))
+        try
         {
-            oils.Add(FuelPrice.Parse(line));
+            if (File.Exists("input.txt"))
+            {
+                Console.WriteLine("Файл input.txt не найден");
+                return;
+            }
+            foreach (string line in File.ReadAllLines("input.txt"))
+            {
+                oils.Add(Parsers.FuelParse(line));
+            }
+            ShowFuel();
         }
-        ShowFuel();
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
     }
 
     private static void ShowFuel()
@@ -67,7 +98,7 @@ class Program
     {
         foreach (string line in File.ReadAllLines("input.txt"))
         {
-            stations.Add(GasStation.Parse(line));
+            stations.Add(Parsers.StationParse(line));
         }
         ShowGasStations();
     }
@@ -105,7 +136,7 @@ class Program
         Console.WriteLine("\n--- МЕНЮ ---");
         Console.WriteLine("1. Создать объект топливо и отобразить список");
         Console.WriteLine("2. Создать объект азс и отобразить список");
-        Console.WriteLine("3. Прочитать graph.txt (граф) и показать список и матрицу");
+        Console.WriteLine("3. Прочитать graph.txt и показать список и матрицу");
         Console.WriteLine("0. Выход");
         Console.Write("Выбор: ");
     }
