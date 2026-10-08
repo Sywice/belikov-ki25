@@ -43,7 +43,7 @@ namespace FuelPriceNamespace
             string[] parts = line.Split("->");
             string from = parts[0].Trim();
             string to = parts[1].Trim();
-            return new string[] { from, to };
+            return new[] { from, to };
         }
 
         private void AddEdge(string from, string to)

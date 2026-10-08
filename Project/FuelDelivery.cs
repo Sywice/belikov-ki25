@@ -14,17 +14,5 @@ namespace FuelPriceNamespace
             DeliveryDate = deliveryDate;
             Volume = volume;
         }
-
-        public static FuelDelivery Parse(string input)
-        {
-            string[] tokens = input.Split(' ');
-            
-            string supplier = tokens[0];
-            string fuelType = tokens[1];
-            DateTime deliveryDate = DateTime.ParseExact(tokens[2], "yyyy.MM.dd", null);
-            double volume = double.Parse(tokens[3]);
-
-            return new FuelDelivery(supplier, fuelType, deliveryDate, volume);
-        }
     }
 }

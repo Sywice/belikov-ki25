@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace FuelPriceNamespace
 {
     public class FuelPrice
@@ -13,17 +11,6 @@ namespace FuelPriceNamespace
             Price = price;
             Date = date;
             FuelType = fuelType;
-        }
-
-        public static FuelPrice Parse(string input)
-        {
-            string[] tokens = input.Split(' ');
-
-            double price = double.Parse(tokens[0]);
-            DateTime date = DateTime.ParseExact(tokens[1], "yyyy.MM.dd", null);
-            string fuelType = tokens[2];
-
-            return new FuelPrice(price, date, fuelType);
         }
     }
 }

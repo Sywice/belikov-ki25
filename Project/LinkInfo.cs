@@ -1,5 +1,3 @@
-using System.Data;
-
 namespace FuelPriceNamespace
 {
     public class LinkInfo
