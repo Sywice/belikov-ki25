@@ -17,14 +17,14 @@ public class Parsers
 
         foreach(string token in tokens)
         {
-            if (double.TryParse(token, out double parsedPrice))
-            {
-                price = parsedPrice;
-                continue;
-            }
-            else if (DateTime.TryParseExact(token, "yyyy.MM.dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+            if (DateTime.TryParseExact(token, "yyyy.MM.dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
             {
                 date = parsedDate;
+                continue;
+            }
+            else if (double.TryParse(token.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double parsedPrice))
+            {
+                price = parsedPrice;
                 continue;
             }
             else
@@ -50,7 +50,7 @@ public class Parsers
 
         foreach (string token in tokens)
         {
-            if (double.TryParse(token, out double parsedValue))
+            if (double.TryParse(token.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double parsedValue))
             {
                 if (x == null)
                 {
@@ -66,11 +66,12 @@ public class Parsers
                 stationName = token;
             }
         }
+        if (x == null || y == null || string.IsNullOrWhiteSpace(stationName))
+        {
+            throw new ArgumentException("Некорректные данные в строке");
+        }
 
-        return new GasStation(
-            double.Parse(tokens[0]),
-            double.Parse(tokens[1]),
-            tokens[2]);
+        return new GasStation(x.Value, y.Value, stationName);
     }
     public static FuelDelivery DeliveryParse(string input)
     {
