@@ -96,11 +96,23 @@ class Program
 
     private static void AddGasStation()
     {
-        foreach (string line in File.ReadAllLines("input.txt"))
+        try
         {
-            stations.Add(Parsers.StationParse(line));
+            if (File.Exists("input.txt"))
+            {
+                Console.WriteLine("Файл input.txt не найден");
+                return;
+            }
+            foreach (string line in File.ReadAllLines("input.txt"))
+            {
+                stations.Add(Parsers.StationParse(line));
+            }
+            ShowGasStations();
         }
-        ShowGasStations();
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
     }
 
     private static void ShowGasStations()

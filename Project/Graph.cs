@@ -15,14 +15,29 @@ namespace FuelPriceNamespace
 
         public void ReadFile(string filename)
         {
+            if (string.IsNullOrWhiteSpace(filename))
+            {
+                throw new ArgumentException("Имя файла не может быть пустым.", nameof(filename));
+            }
+
+            if (!File.Exists(filename))
+            {
+                throw new FileNotFoundException("Файл с данными графа не найден.", filename);
+            }
+
             ResetGraph();
-            string[] lines =  File.ReadAllLines(filename);
+            string[] lines = File.ReadAllLines(filename);
             ParseLines(lines);
         }
         
         public void ParseLines(string[] lines)
         {
-            foreach(string line in lines)
+            if (lines == null)
+            {
+                throw new ArgumentNullException(nameof(lines), "Массив строк не может быть null.");
+            }
+
+            foreach (string line in lines)
             {
                 ProcessLine(line);
             }
@@ -34,15 +49,28 @@ namespace FuelPriceNamespace
             {
                 return;
             }
-            string[] links = GetLinks(line);
-            AddEdge(links[0], links[1]);
+
+            string[] edgeLinks = GetLinks(line);
+            AddEdge(edgeLinks[0], edgeLinks[1]);
         }
 
         private string[] GetLinks(string line)
         {
-            string[] parts = line.Split("->");
+            string[] parts = line.Split("->", StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length != 2)
+            {
+                throw new FormatException($"Неверный формат ребра графа в строке: '{line}'. Ожидается формат 'A -> B'.");
+            }
+
             string from = parts[0].Trim();
             string to = parts[1].Trim();
+
+            if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(to))
+            {
+                throw new FormatException($"Имена вершин не могут быть пустыми в строке: '{line}'.");
+            }
+
             return new[] { from, to };
         }
 
@@ -72,13 +100,17 @@ namespace FuelPriceNamespace
 
         private int GetIndex(string v, int j)
         {
+            if (fromList[j] == v && toList[j] == v)
+            {
+                return 2; 
+            }
             if (fromList[j] == v)
             {
-                return 1;   
+                return 1;
             }
-            else if (toList[j] == v)
+            if (toList[j] == v)
             {
-                return -1;  
+                return -1;
             }
             return 0;
         }
